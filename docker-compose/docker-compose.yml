@@ -1,0 +1,62 @@
+# 非 host 版本, 不使用本机代理
+version: '3.3'
+services:
+  pg:
+    image: ankane/pgvector:v0.4.2 # docker
+    # image: registry.cn-hangzhou.aliyuncs.com/fastgpt/pgvector:v0.4.2 # 阿里云
+    container_name: pg
+    restart: always
+    ports: # 生产环境建议不要暴露
+      - 5432:5432
+    networks:
+      - fastgpt
+    environment:
+      # 这里的配置只有首次运行生效。修改后，重启镜像是不会生效的。需要把持久化数据删除再重启，才有效果
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./pg/data:/var/lib/postgresql/data
+  mongo:
+    image: mongo:5.0.18
+    # image: registry.cn-hangzhou.aliyuncs.com/fastgpt/mongo:5.0.18 # 阿里云
+    container_name: mongo
+    restart: always
+    ports: # 生产环境建议不要暴露
+      - 27017:27017
+    networks:
+      - fastgpt
+    environment:
+      # 这里的配置只有首次运行生效。修改后，重启镜像是不会生效的。需要把持久化数据删除再重启，才有效果
+      - MONGO_INITDB_ROOT_USERNAME=username
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - ./mongo/data:/data/db
+  fastgpt:
+    container_name: fastgpt
+    # image: registry.cn-hangzhou.aliyuncs.com/fastgpt/fastgpt:latest # 阿里云
+    image: myfastgpt
+    ports:
+      - 3000:3000
+    networks:
+      - fastgpt
+    depends_on:
+      - mongo
+      - pg
+    restart: always
+    environment:
+      # root 密码，用户名为: root
+      - DEFAULT_ROOT_PSW=123456
+      # 中转地址，如果是用官方号，不需要管
+      - OPENAI_BASE_URL=http://10.20.28.28:8006/v1
+      - CHAT_API_KEY=sk-aaabbbcccdddeeefffggghhhiiijjjkkk
+      - DB_MAX_LINK=5 # database max link
+      - TOKEN_KEY=any
+      - ROOT_KEY=root_key
+      - FILE_TOKEN_KEY=filetoken
+      # mongo 配置，不需要改. 如果连不上，可能需要去掉 ?authSource=admin
+      - MONGODB_URI=mongodb://username:password@mongo:27017/fastgpt?authSource=admin
+      # pg配置. 不需要改
+      - PG_URL=postgresql://username:password@pg:5432/postgres
+networks:
+  fastgpt:

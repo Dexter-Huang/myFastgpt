@@ -1,0 +1,13 @@
+nohup: ignoring input
+Loading checkpoint shards:   0%|          | 0/7 [00:00<?, ?it/s]Loading checkpoint shards:  14%|█▍        | 1/7 [00:01<00:08,  1.50s/it]Loading checkpoint shards:  29%|██▊       | 2/7 [00:03<00:08,  1.78s/it]Loading checkpoint shards:  43%|████▎     | 3/7 [00:05<00:07,  1.85s/it]Loading checkpoint shards:  57%|█████▋    | 4/7 [00:07<00:05,  1.83s/it]Loading checkpoint shards:  71%|███████▏  | 5/7 [00:09<00:03,  1.87s/it]Loading checkpoint shards:  86%|████████▌ | 6/7 [00:11<00:01,  1.88s/it]Loading checkpoint shards: 100%|██████████| 7/7 [00:12<00:00,  1.62s/it]Loading checkpoint shards: 100%|██████████| 7/7 [00:12<00:00,  1.73s/it]
+Some weights of ChatGLMForConditionalGeneration were not initialized from the model checkpoint at /home/huangml/ChatGLM2-6B/model and are newly initialized: ['transformer.prefix_encoder.embedding.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+INFO:     Started server process [1349512]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     172.29.0.4:37596 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1349512]
