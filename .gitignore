@@ -37,5 +37,5 @@ docSite/public/
 docSite/resources/_gen/
 docSite/.vercel
 
-mongo/
-pg/
+docker-compose/mongo/
+docker-compose/pg/
