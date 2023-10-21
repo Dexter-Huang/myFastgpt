@@ -130,7 +130,7 @@ def expand_features(embedding, target_length):
 
 @app.post("/v1/chat/completions", response_model=ChatCompletionResponse)
 async def create_chat_completion(
-    request: ChatCompletionRequest, token: bool = Depends(verify_token)
+    request: ChatCompletionRequest
 ):
     global model, tokenizer
 
@@ -140,7 +140,7 @@ async def create_chat_completion(
 
     prev_messages = request.messages[:-1]
     if len(prev_messages) > 0 and prev_messages[0].role == "system":
-        query = '当前需要了解的背景知识:' + prev_messages.pop(0).content + ' 。问题:'+query
+        query = prev_messages.pop(0).content + query
 
     history = []
     if len(prev_messages) % 2 == 0:
@@ -150,12 +150,12 @@ async def create_chat_completion(
                 and prev_messages[i + 1].role == "assistant"
             ):
                 history.append([prev_messages[i].content, prev_messages[i + 1].content])
-    # 打印目前时间
-    print('---------'+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+'---------')
-    # 打印历史记录
-    for i in range(len(history)):
-        print(history[i][0].__str__())
-        print(history[i][1].__str__())
+    # # 打印目前时间
+    # print('---------'+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+'---------')
+    # # 打印历史记录
+    # for i in range(len(history)):
+    #     print(history[i][0].__str__())
+    #     print(history[i][1].__str__())
 
     if request.stream:
         generate = predict(query, history, request.model)
@@ -174,6 +174,7 @@ async def create_chat_completion(
     return ChatCompletionResponse(
         model=request.model, choices=[choice_data], object="chat.completion"
     )
+
 
 
 async def predict(query: str, history: List[List[str]], model_id: str):
@@ -253,9 +254,28 @@ async def get_embeddings(
             "total_tokens": total_tokens,
         },
     }
-
     return response
 
+def load_chatglm2_models():
+    print("本次加载的大语言模型为: ChatGLM2-6B")
+    model_path = '/home/huangml/ChatGLM2-6B/model'
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model_name", default="16", type=str, help="Model name")
+    args = parser.parse_args()
+
+    model_dict = {
+        "4": model_path,
+        "8": model_path,
+        "16": model_path,
+    }
+
+    model_name = model_dict.get(args.model_name, model_path)
+
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    model = AutoModel.from_pretrained(model_name, trust_remote_code=True).cuda()
+    embeddings_model = SentenceTransformer('/home/huangml/mokai_m3e_base', device='cpu')
+
+    # uvicorn.run(app, host='0.0.0.0', port=8000, workers=1)
 
 if __name__ == "__main__":
     model_path = '/home/huangml/ChatGLM2-6B/model'

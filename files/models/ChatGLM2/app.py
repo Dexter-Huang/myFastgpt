@@ -15,8 +15,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.preprocessing import PolynomialFeatures
 from sse_starlette.sse import EventSourceResponse
 from starlette.status import HTTP_401_UNAUTHORIZED
-from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM
-from transformers.generation.utils import GenerationConfig
+from transformers import AutoModel, AutoTokenizer
 
 
 @asynccontextmanager
@@ -133,92 +132,15 @@ def expand_features(embedding, target_length):
 async def create_chat_completion(
     request: ChatCompletionRequest, token: bool = Depends(verify_token)
 ):
-    global model, tokenizer
+    global chatglm_model, chatglm_tokenizer, baichuan_model, baichuan_tokenizer
 
-    if request.messages[-1].role != "user":
-        raise HTTPException(status_code=400, detail="Invalid request")
-    query = request.messages[-1].content
+    if request.model == 'chatglm2':
+        from chatglm_openai_api import chatglm_create_chat_completion
+        return chatglm_create_chat_completion(request,chatglm_model,chatglm_tokenizer)
+    elif request.model == 'baichuan2':
+        from baichuan_openai_api import baichuan_create_chat_completion
+        return baichuan_create_chat_completion(request,baichuan_model,baichuan_tokenizer)
 
-    prev_messages = request.messages[:-1]
-    if len(prev_messages) > 0 and prev_messages[0].role == "system":
-        query = '当前需要了解的背景知识:' + prev_messages.pop(0).content + ' 。问题:'+query
-
-    history = []
-    if len(prev_messages) % 2 == 0:
-        for i in range(0, len(prev_messages), 2):
-            if (
-                prev_messages[i].role == "user"
-                and prev_messages[i + 1].role == "assistant"
-            ):
-                history.append([prev_messages[i].content, prev_messages[i + 1].content])
-    # 打印目前时间
-    print('---------'+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+'---------')
-    # 打印历史记录
-    for i in range(len(history)):
-        print(history[i][0].__str__())
-        print(history[i][1].__str__())
-
-    if request.stream:
-        generate = predict(query, history, request.model)
-        return EventSourceResponse(generate, media_type="text/event-stream")
-
-    response, _ = model.chat(tokenizer, query, history=history)
-    choice_data = ChatCompletionResponseChoice(
-        index=0,
-        message=ChatMessage(role="assistant", content=response),
-        finish_reason="stop",
-    )
-    print('query: '+query)
-    print('history: '+str(history))
-    print('response: '+response)
-
-    return ChatCompletionResponse(
-        model=request.model, choices=[choice_data], object="chat.completion"
-    )
-
-
-async def predict(query: str, history: List[List[str]], model_id: str):
-    global model, tokenizer
-
-    choice_data = ChatCompletionResponseStreamChoice(
-        index=0, delta=DeltaMessage(role="assistant"), finish_reason=None
-    )
-    chunk = ChatCompletionResponse(
-        model=model_id, choices=[choice_data], object="chat.completion.chunk"
-    )
-    yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
-
-    current_length = 0
-
-    for new_response, _ in model.stream_chat(tokenizer, query, history):
-        if len(new_response) == current_length:
-            continue
-
-        new_text = new_response[current_length:]
-        current_length = len(new_response)
-
-        choice_data = ChatCompletionResponseStreamChoice(
-            index=0,
-            delta=DeltaMessage(content=new_text),
-            finish_reason=None
-        )
-        chunk = ChatCompletionResponse(
-            model=model_id,
-            choices=[choice_data],
-            object="chat.completion.chunk"
-        )
-        yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
-
-    choice_data = ChatCompletionResponseStreamChoice(
-        index=0, delta=DeltaMessage(), finish_reason="stop"
-    )
-    chunk = ChatCompletionResponse(
-        model=model_id,
-        choices=[choice_data],
-        object="chat.completion.chunk"
-    )
-    yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
-    yield '[DONE]'
 
 
 @app.post("/v1/embeddings", response_model=EmbeddingResponse)
@@ -254,17 +176,16 @@ async def get_embeddings(
             "total_tokens": total_tokens,
         },
     }
-
     return response
 
 
 if __name__ == "__main__":
-    model_name = "/home/lihl/my_openai_api/Baichuan2-13B-Chat"
-    tokenizer = AutoTokenizer.from_pretrained(
-            model_name, use_fast=False, trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(
-            model_name, device_map="auto", trust_remote_code=True)
-    model.generation_config = GenerationConfig.from_pretrained(model_name)
+    from chatglm_openai_api import load_chatglm2_models
+    chatglm_model, chatglm_tokenizer = load_chatglm2_models()
+
+    from baichuan_openai_api import load_baichuan2_models
+    baichuan_model, baichuan_tokenizer = load_baichuan2_models()
 
     embeddings_model = SentenceTransformer('/home/huangml/mokai_m3e_base', device='cpu')
+
     uvicorn.run(app, host='0.0.0.0', port=8000, workers=1)
