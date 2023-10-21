@@ -42,8 +42,9 @@ const defaultFeConfigs: FeConfigsType = {
   show_contact: true,
   show_git: true,
   show_doc: true,
-  systemTitle: 'FastGPT',
-  authorText: 'Made by FastGPT Team.',
+  show_register: true,
+  systemTitle: 'SUSTech-HPC-Chat',
+  authorText: 'source from FastGPT',
   limit: {
     exportLimitMinutes: 0
   },
@@ -51,28 +52,22 @@ const defaultFeConfigs: FeConfigsType = {
 };
 const defaultChatModels = [
   {
-    model: 'gpt-3.5-turbo',
-    name: 'GPT35-4k',
-    contextMaxToken: 4000,
-    quoteMaxToken: 2400,
-    maxTemperature: 1.2,
-    price: 0
-  },
-  {
-    model: 'gpt-3.5-turbo-16k',
-    name: 'GPT35-16k',
-    contextMaxToken: 16000,
-    quoteMaxToken: 8000,
-    maxTemperature: 1.2,
-    price: 0
-  },
-  {
-    model: 'gpt-4',
-    name: 'GPT4-8k',
+    model: 'baichuan2',
+    name: 'baichuan2',
     contextMaxToken: 8000,
     quoteMaxToken: 4000,
     maxTemperature: 1.2,
-    price: 0
+    price: 0,
+    defaultSystem: ''
+  },
+  {
+    model: 'chatglm2',
+    name: 'chatglm2',
+    contextMaxToken: 8000,
+    quoteMaxToken: 4000,
+    maxTemperature: 1.2,
+    price: 0,
+    defaultSystem: ''
   }
 ];
 const defaultQAModel = {

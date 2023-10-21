@@ -1,5 +1,0 @@
-nohup: ignoring input
-Traceback (most recent call last):
-  File "chatglm2_ptuning_api.py", line 9, in <module>
-    import tiktoken
-ModuleNotFoundError: No module named 'tiktoken'

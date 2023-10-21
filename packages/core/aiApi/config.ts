@@ -1,7 +1,7 @@
 import { UserModelSchema } from '../user/type';
 import { Configuration, OpenAIApi } from 'openai';
 
-export const openaiBaseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
+export const openaiBaseUrl = process.env.OPENAI_BASE_URL || 'http://10.20.28.28:8000/v1';
 export const baseUrl = process.env.ONEAPI_URL || openaiBaseUrl;
 
 export const systemAIChatKey = process.env.CHAT_API_KEY || '';
