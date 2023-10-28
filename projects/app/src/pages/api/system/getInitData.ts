@@ -68,6 +68,15 @@ const defaultChatModels = [
     maxTemperature: 1.2,
     price: 0,
     defaultSystem: ''
+  },
+  {
+    model: 'chatglm3',
+    name: 'chatglm3',
+    contextMaxToken: 8000,
+    quoteMaxToken: 4000,
+    maxTemperature: 1.2,
+    price: 0,
+    defaultSystem: ''
   }
 ];
 const defaultQAModel = {

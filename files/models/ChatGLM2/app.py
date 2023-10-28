@@ -136,7 +136,7 @@ async def create_chat_completion(
 ):
     global chatglm_model, chatglm_tokenizer, baichuan_model, baichuan_tokenizer
 
-    if request.model == 'chatglm3':
+    if request.model == 'chatglm2' or request.model == 'chatglm3':
         if request.messages[-1].role != "user":
             raise HTTPException(status_code=400, detail="Invalid request")
         query = request.messages[-1].content
