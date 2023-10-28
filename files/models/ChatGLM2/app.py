@@ -1,5 +1,6 @@
 # coding=utf-8
 import argparse
+import json
 import random
 import string
 import time
@@ -134,9 +135,9 @@ def expand_features(embedding, target_length):
 async def create_chat_completion(
     request: ChatCompletionRequest
 ):
-    global chatglm_model, chatglm_tokenizer, baichuan_model, baichuan_tokenizer
+    global chatglm2_model, chatglm2_tokenizer, chatglm3_model, chatglm3_tokenizer, baichuan_model, baichuan_tokenizer
 
-    if request.model == 'chatglm2' or request.model == 'chatglm3':
+    if request.model == 'chatglm2' :
         if request.messages[-1].role != "user":
             raise HTTPException(status_code=400, detail="Invalid request")
         query = request.messages[-1].content
@@ -155,10 +156,10 @@ async def create_chat_completion(
                     history.append([prev_messages[i].content, prev_messages[i + 1].content])
 
         if request.stream:
-            generate = chatglm_predict(query, history, request.model)
+            generate = chatglm2_predict(query, history, request.model)
             return EventSourceResponse(generate, media_type="text/event-stream")
 
-        response, _ = chatglm_model.chat(chatglm_tokenizer, query, history=history)
+        response, _ = chatglm2_model.chat(chatglm2_tokenizer, query, history=history)
         choice_data = ChatCompletionResponseChoice(
             index=0,
             message=ChatMessage(role="assistant", content=response),
@@ -167,6 +168,66 @@ async def create_chat_completion(
         return ChatCompletionResponse(
             model=request.model, choices=[choice_data], object="chat.completion"
         )
+    elif request.model == 'chatglm3':
+        tools = [
+            {'name': 'track', 'description': '追踪指定股票的实时价格',
+             'parameters': {'type': 'object', 'properties': {'symbol': {'description': '需要追踪的股票代码'}},
+                            'required': []}},
+            {'name': '/text-to-speech', 'description': '将文本转换为语音', 'parameters': {'type': 'object',
+                                                                                          'properties': {'text': {
+                                                                                              'description': '需要转换成语音的文本'},
+                                                                                                         'voice': {
+                                                                                                             'description': '要使用的语音类型（男声、女声等）'},
+                                                                                                         'speed': {
+                                                                                                             'description': '语音的速度（快、中等、慢等）'}},
+                                                                                          'required': []}},
+            {'name': '/image_resizer', 'description': '调整图片的大小和尺寸', 'parameters': {'type': 'object',
+                                                                                             'properties': {
+                                                                                                 'image_file': {
+                                                                                                     'description': '需要调整大小的图片文件'},
+                                                                                                 'width': {
+                                                                                                     'description': '需要调整的宽度值'},
+                                                                                                 'height': {
+                                                                                                     'description': '需要调整的高度值'}},
+                                                                                             'required': []}},
+            {'name': '/foodimg', 'description': '通过给定的食品名称生成该食品的图片',
+             'parameters': {'type': 'object', 'properties': {'food_name': {'description': '需要生成图片的食品名称'}},
+                            'required': []}}]
+        system_item = {"role": "system",
+                       "content": "Answer the following questions as best as you can. You have access to the following tools:",
+                       "tools": tools}
+        if request.messages[-1].role != "user":
+            raise HTTPException(status_code=400, detail="Invalid request")
+        query = request.messages[-1].content
+
+        prev_messages = request.messages[:-1]
+        if len(prev_messages) > 0 and prev_messages[0].role == "system":
+            query = prev_messages.pop(0).content + query
+        query = system_item["content"] + json.dumps(system_item["tools"]) + query
+
+        history = [system_item]
+        if len(prev_messages) % 2 == 0:
+            for i in range(0, len(prev_messages), 2):
+                if (
+                        prev_messages[i].role == "user"
+                        and prev_messages[i + 1].role == "assistant"
+                ):
+                    history.append([prev_messages[i].content, prev_messages[i + 1].content])
+
+        if request.stream:
+            generate = chatglm3_predict(query, history, request.model)
+            return EventSourceResponse(generate, media_type="text/event-stream")
+
+        response, _ = chatglm3_model.chat(chatglm3_tokenizer, query, history=history)
+        choice_data = ChatCompletionResponseChoice(
+            index=0,
+            message=ChatMessage(role="assistant", content=response),
+            finish_reason="stop",
+        )
+        return ChatCompletionResponse(
+            model=request.model, choices=[choice_data], object="chat.completion"
+        )
+
     elif request.model == 'baichuan2':
         for message in request.messages:
             print(message)
@@ -184,7 +245,7 @@ async def create_chat_completion(
         messages.append({"role": "user", "content": query})
 
         if request.stream:
-            generate = baichuan_predict(messages, request.model)
+            generate = baichuan2_predict(messages, request.model)
             return EventSourceResponse(generate, media_type="text/event-stream")
 
         response = '本接口不支持非stream模式'
@@ -202,8 +263,8 @@ def generate_id():
     random_string = ''.join(random.choices(possible_characters, k=29))
     return 'chatcmpl-' + random_string
 
-async def chatglm_predict(query: str, history: List[List[str]], model_id: str):
-    global chatglm_model, chatglm_tokenizer
+async def chatglm2_predict(query: str, history: List[List[str]], model_id: str):
+    global chatglm2_model, chatglm2_tokenizer
 
     choice_data = ChatCompletionResponseStreamChoice(
         index=0, delta=DeltaMessage(role="assistant"), finish_reason=None
@@ -215,7 +276,7 @@ async def chatglm_predict(query: str, history: List[List[str]], model_id: str):
 
     current_length = 0
 
-    for new_response, _ in chatglm_model.stream_chat(chatglm_tokenizer, query, history):
+    for new_response, _ in chatglm2_model.stream_chat(chatglm2_tokenizer, query, history):
         if len(new_response) == current_length:
             continue
 
@@ -245,7 +306,52 @@ async def chatglm_predict(query: str, history: List[List[str]], model_id: str):
     yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
     yield '[DONE]'
 
-async def baichuan_predict(messages: List[List[str]], model_id: str):
+async def chatglm3_predict(query: str, history: List[List[str]], model_id: str):
+    global chatglm3_model, chatglm3_tokenizer
+
+    choice_data = ChatCompletionResponseStreamChoice(
+        index=0, delta=DeltaMessage(role="assistant"), finish_reason=None
+    )
+    chunk = ChatCompletionResponse(
+        model=model_id, choices=[choice_data], object="chat.completion.chunk"
+    )
+    yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
+
+    current_length = 0
+    past_key_values, history = None, []
+
+    for new_response, history, past_key_values in chatglm3_model.stream_chat(chatglm3_tokenizer, query, history=history, past_key_values=past_key_values, return_past_key_values=True):
+        if len(new_response) == current_length:
+            continue
+
+        new_text = new_response[current_length:]
+        current_length = len(new_response)
+
+        choice_data = ChatCompletionResponseStreamChoice(
+            index=0,
+            delta=DeltaMessage(content=new_text),
+            finish_reason=None
+        )
+        chunk = ChatCompletionResponse(
+            model=model_id,
+            choices=[choice_data],
+            object="chat.completion.chunk"
+        )
+        yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
+
+    choice_data = ChatCompletionResponseStreamChoice(
+        index=0, delta=DeltaMessage(), finish_reason="stop"
+    )
+    chunk = ChatCompletionResponse(
+        model=model_id,
+        choices=[choice_data],
+        object="chat.completion.chunk"
+    )
+    yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
+    yield '[DONE]'
+
+
+async def baichuan2_predict(messages: List[List[str]], model_id: str):
     global baichuan_model, baichuan_tokenizer
     id = generate_id()
     created = int(time.time())
@@ -323,18 +429,23 @@ async def get_embeddings(
 
 
 if __name__ == "__main__":
-    model_path = '/home/huangml/ChatGLM3/model/chatglm3-6b'
-    print("本次加载的大语言模型为: ChatGLM3-6B-Chat")
-    chatglm_tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-    chatglm_model = AutoModel.from_pretrained(model_path, trust_remote_code=True).cuda()
+    chatglm2_model_path = '/home/huangml/ChatGLM2-6B/model'
+    print("本次加载的大语言模型为: ChatGLM2-6B-Chat")
+    chatglm2_tokenizer = AutoTokenizer.from_pretrained(chatglm2_model_path, trust_remote_code=True)
+    chatglm2_model = AutoModel.from_pretrained(chatglm2_model_path, trust_remote_code=True).cuda()
+
+    chatglm3_model_path = '/home/huangml/ChatGLM3/model/chatglm3-6b'
+    print('本次加载的大语言模型为: ChatGLM3-6B-Chat')
+    chatglm3_tokenizer = AutoTokenizer.from_pretrained(chatglm3_model_path, trust_remote_code=True)
+    chatglm3_model = AutoModel.from_pretrained(chatglm3_model_path, trust_remote_code=True).cuda()
 
     print("本次加载的大语言模型为: Baichuan-13B-Chat")
-    model_name = "/home/lihl/my_openai_api/Baichuan2-13B-Chat"
+    baichuan2_model_path = "/home/lihl/my_openai_api/Baichuan2-13B-Chat"
     baichuan_tokenizer = AutoTokenizer.from_pretrained(
-        model_name, use_fast=False, trust_remote_code=True)
+        baichuan2_model_path, use_fast=False, trust_remote_code=True)
     baichuan_model = AutoModelForCausalLM.from_pretrained(
-        model_name, device_map="auto", trust_remote_code=True)
-    baichuan_model.generation_config = GenerationConfig.from_pretrained(model_name)
+        baichuan2_model_path, device_map="auto", trust_remote_code=True)
+    baichuan_model.generation_config = GenerationConfig.from_pretrained(baichuan2_model_path)
 
 
     embeddings_model = SentenceTransformer('/home/huangml/mokai_m3e_base', device='cpu')
