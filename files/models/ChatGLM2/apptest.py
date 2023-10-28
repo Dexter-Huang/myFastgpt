@@ -40,14 +40,14 @@ app.add_middleware(
 
 
 class ChatMessage(BaseModel):
-    role: Literal["user", "assistant", "system"]
+    role: Literal["user", "assistant", "system", "observation"]
     content: str
     def __str__(self)->str:
         return self.role+": "+self.content
 
 
 class DeltaMessage(BaseModel):
-    role: Optional[Literal["user", "assistant", "system"]] = None
+    role: Optional[Literal["user", "assistant", "system", "observation"]] = None
     content: Optional[str] = None
 
 
@@ -136,7 +136,7 @@ async def create_chat_completion(
 ):
     global chatglm_model, chatglm_tokenizer, baichuan_model, baichuan_tokenizer
 
-    if request.model == 'chatglm2':
+    if request.model == 'chatglm3':
         if request.messages[-1].role != "user":
             raise HTTPException(status_code=400, detail="Invalid request")
         query = request.messages[-1].content
@@ -168,6 +168,9 @@ async def create_chat_completion(
             model=request.model, choices=[choice_data], object="chat.completion"
         )
     elif request.model == 'baichuan2':
+        for message in request.messages:
+            print(message)
+
         if request.messages[-1].role != "user":
             raise HTTPException(status_code=400, detail="Invalid request")
         query = request.messages[-1].content
@@ -320,8 +323,8 @@ async def get_embeddings(
 
 
 if __name__ == "__main__":
-    model_path = '/home/huangml/ChatGLM2-6B/model'
-    print("本次加载的大语言模型为: ChatGLM2-6B-Chat")
+    model_path = '/home/huangml/ChatGLM3/model/chatglm3-6b'
+    print("本次加载的大语言模型为: ChatGLM3-6B-Chat")
     chatglm_tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
     chatglm_model = AutoModel.from_pretrained(model_path, trust_remote_code=True).cuda()
 
@@ -332,8 +335,6 @@ if __name__ == "__main__":
     baichuan_model = AutoModelForCausalLM.from_pretrained(
         model_name, device_map="auto", trust_remote_code=True)
     baichuan_model.generation_config = GenerationConfig.from_pretrained(model_name)
-
-
 
 
     embeddings_model = SentenceTransformer('/home/huangml/mokai_m3e_base', device='cpu')
