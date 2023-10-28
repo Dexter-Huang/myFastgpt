@@ -135,6 +135,8 @@ def expand_features(embedding, target_length):
 async def create_chat_completion(
     request: ChatCompletionRequest
 ):
+    for message in request.messages:
+        print(message)
     global chatglm2_model, chatglm2_tokenizer, chatglm3_model, chatglm3_tokenizer, baichuan_model, baichuan_tokenizer
 
     if request.model == 'chatglm2' :
@@ -168,7 +170,34 @@ async def create_chat_completion(
         return ChatCompletionResponse(
             model=request.model, choices=[choice_data], object="chat.completion"
         )
-    elif request.model == 'chatglm3':
+
+    elif request.model == 'baichuan2':
+        if request.messages[-1].role != "user":
+            raise HTTPException(status_code=400, detail="Invalid request")
+        query = request.messages[-1].content
+        prev_messages = request.messages[:-1]
+        if len(prev_messages) > 0 and prev_messages[0].role == "system":
+            query = prev_messages.pop(0).content + query
+        messages = []
+        for message in prev_messages:
+            messages.append({"role": message.role, "content": message.content})
+
+        messages.append({"role": "user", "content": query})
+
+        if request.stream:
+            generate = baichuan2_predict(messages, request.model)
+            return EventSourceResponse(generate, media_type="text/event-stream")
+
+        response = '本接口不支持非stream模式'
+        choice_data = ChatCompletionResponseChoice(
+            index=0,
+            message=ChatMessage(role="assistant", content=response),
+            finish_reason="stop"
+        )
+        id = 'chatcmpl-7QyqpwdfhqwajicIEznoc6Q47XAyW'
+
+        return ChatCompletionResponse(id=id, model=request.model, choices=[choice_data], object="chat.completion")
+    else : # chatglm3
         tools = [
             {'name': 'track', 'description': '追踪指定股票的实时价格',
              'parameters': {'type': 'object', 'properties': {'symbol': {'description': '需要追踪的股票代码'}},
@@ -219,6 +248,9 @@ async def create_chat_completion(
             return EventSourceResponse(generate, media_type="text/event-stream")
 
         response, _ = chatglm3_model.chat(chatglm3_tokenizer, query, history=history)
+        print(response)
+        if response is not str:
+            response = json.dumps(response)
         choice_data = ChatCompletionResponseChoice(
             index=0,
             message=ChatMessage(role="assistant", content=response),
@@ -227,36 +259,6 @@ async def create_chat_completion(
         return ChatCompletionResponse(
             model=request.model, choices=[choice_data], object="chat.completion"
         )
-
-    elif request.model == 'baichuan2':
-        for message in request.messages:
-            print(message)
-
-        if request.messages[-1].role != "user":
-            raise HTTPException(status_code=400, detail="Invalid request")
-        query = request.messages[-1].content
-        prev_messages = request.messages[:-1]
-        if len(prev_messages) > 0 and prev_messages[0].role == "system":
-            query = prev_messages.pop(0).content + query
-        messages = []
-        for message in prev_messages:
-            messages.append({"role": message.role, "content": message.content})
-
-        messages.append({"role": "user", "content": query})
-
-        if request.stream:
-            generate = baichuan2_predict(messages, request.model)
-            return EventSourceResponse(generate, media_type="text/event-stream")
-
-        response = '本接口不支持非stream模式'
-        choice_data = ChatCompletionResponseChoice(
-            index=0,
-            message=ChatMessage(role="assistant", content=response),
-            finish_reason="stop"
-        )
-        id = 'chatcmpl-7QyqpwdfhqwajicIEznoc6Q47XAyW'
-
-        return ChatCompletionResponse(id=id, model=request.model, choices=[choice_data], object="chat.completion")
 
 def generate_id():
     possible_characters = string.ascii_letters + string.digits
