@@ -1,3 +1,5 @@
+docker run -d --name scrapy -p 8001:8001 scrapy
+docker-compose up -d
 
 docker 部署命令
 docker build -t myfastgpt --build-arg name="app" .
