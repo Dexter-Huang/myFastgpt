@@ -1,0 +1,1 @@
+/home/huangml/miniconda3/envs/py3_11/bin/python /home/huangml/fastgpt2/files/models/ChatGLM2/app.py > output.log 2>&1 &

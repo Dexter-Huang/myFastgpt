@@ -60,15 +60,15 @@ const defaultChatModels = [
     price: 0,
     defaultSystem: ''
   },
-  {
-    model: 'chatglm2',
-    name: 'chatglm2',
-    contextMaxToken: 8000,
-    quoteMaxToken: 4000,
-    maxTemperature: 1.2,
-    price: 0,
-    defaultSystem: ''
-  },
+  // {
+  //   model: 'chatglm2',
+  //   name: 'chatglm2',
+  //   contextMaxToken: 8000,
+  //   quoteMaxToken: 4000,
+  //   maxTemperature: 1.2,
+  //   price: 0,
+  //   defaultSystem: ''
+  // },
   {
     model: 'chatglm3',
     name: 'chatglm3',

@@ -1,13 +1,232 @@
-nohup: ignoring input
-Loading checkpoint shards:   0%|          | 0/7 [00:00<?, ?it/s]Loading checkpoint shards:  14%|█▍        | 1/7 [00:01<00:08,  1.50s/it]Loading checkpoint shards:  29%|██▊       | 2/7 [00:03<00:08,  1.78s/it]Loading checkpoint shards:  43%|████▎     | 3/7 [00:05<00:07,  1.85s/it]Loading checkpoint shards:  57%|█████▋    | 4/7 [00:07<00:05,  1.83s/it]Loading checkpoint shards:  71%|███████▏  | 5/7 [00:09<00:03,  1.87s/it]Loading checkpoint shards:  86%|████████▌ | 6/7 [00:11<00:01,  1.88s/it]Loading checkpoint shards: 100%|██████████| 7/7 [00:12<00:00,  1.62s/it]Loading checkpoint shards: 100%|██████████| 7/7 [00:12<00:00,  1.73s/it]
-Some weights of ChatGLMForConditionalGeneration were not initialized from the model checkpoint at /home/huangml/ChatGLM2-6B/model and are newly initialized: ['transformer.prefix_encoder.embedding.weight']
-You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
-INFO:     Started server process [1349512]
+/home/huangml/miniconda3/envs/py3_11/lib/python3.11/site-packages/torch/cuda/__init__.py:611: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+本次加载的大语言模型为: ChatGLM3-6B-Chat
+Loading checkpoint shards:   0%|          | 0/7 [00:00<?, ?it/s]Loading checkpoint shards:  14%|█▍        | 1/7 [00:00<00:04,  1.27it/s]Loading checkpoint shards:  29%|██▊       | 2/7 [00:01<00:05,  1.03s/it]Loading checkpoint shards:  43%|████▎     | 3/7 [00:03<00:04,  1.10s/it]Loading checkpoint shards:  57%|█████▋    | 4/7 [00:04<00:03,  1.10s/it]Loading checkpoint shards:  71%|███████▏  | 5/7 [00:05<00:02,  1.13s/it]Loading checkpoint shards:  86%|████████▌ | 6/7 [00:06<00:01,  1.14s/it]Loading checkpoint shards: 100%|██████████| 7/7 [00:07<00:00,  1.00s/it]Loading checkpoint shards: 100%|██████████| 7/7 [00:07<00:00,  1.05s/it]
+本次加载的大语言模型为: Baichuan-13B-Chat
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:09<00:18,  9.22s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:19<00:09,  9.81s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:28<00:00,  9.53s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:28<00:00,  9.55s/it]
+INFO:     Started server process [863479]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     172.29.0.4:37596 - "POST /v1/chat/completions HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [1349512]
+system: #01 你是一个问答对数据集处理专家。
+
+#02 你的任务是根据我给出的内容，生成适合作为问答对数据集的问题。
+
+#03 问题要尽量短，不要太长。
+
+#04 一句话中只能有一个问题。
+
+#05 生成的问题必须宏观、价值，不要生成特别细节的问题。
+
+#06 生成问题示例：
+
+"""
+
+权益型基金的特点有哪些方面？
+
+介绍一下产品经理。
+
+"""
+
+#07 以下是我给出的内容：
+
+"""
+
+{{此处替换成你的内容}}
+
+"""
+user: 2023年南科大超算队招新宣讲会诚邀您参加 
+
+亲爱的同学们：
+
+你们好！
+
+南方科技大学超算队成立于2019年，为南科大科学与工程计算中心和计算机科学与工程系共同支持下的学生自治组织，也是一个学习与交流超算知识的平台。科学与工程计算中心对超算队提供资源支持，鼓励学生积极参加如ASC、ISC和SC等国际学生超算赛事。此外，超算队还不时邀请各领域的专家学者开展讲座交流，组织高性能计算(HPC)、人工智能(AI等)领域相关的培训。
+
+通过参加超算比赛，同学们可以自行评测不同计算架构的超算平台性能，学习大型开源科学计算软件在先进的超算平台上编译与运行，同时感受不同领域科学问题求解的乐趣。此外，我们为每位参赛同学提供相关的培训课程与指导，也将为成绩优异的团队提供一定奖励。
+
+南科大超算队自2019年成立以来获得了多项国际大奖，主要成绩包括ASC世界大学生超算大赛一等奖三次，SC 21国际超算大赛最高性能奖一次，ISC 22国际超算大赛季军一次，APAC HPC-AI超算大赛冠/亚/季军各一次，IndySCC 22超算大赛亚军以及2022年APAC RDMA编程挑战赛三等奖，是国内为数不多的完整参加过三大国际超算竞赛（ASC、ISC和SC）并获荣誉的高校团队。
+query Answer the following questions as best as you can. You have access to the following tools:[{"name": "track", "description": "追踪指定股票的实时价格", "parameters": {"type": "object", "properties": {"symbol": {"description": "需要追踪的股票价格"}}, "required": ["symbol"]}}, {"name": "text-to-speech", "description": "将文本转换为语音", "parameters": {"type": "object", "properties": {"text": {"description": "需要转换成语音的文本"}, "voice": {"description": "要使用的语音类型（男声、女声等）"}, "speed": {"description": "语音的速度（快、中等、慢等）"}}, "required": ["text"]}}]#01 你是一个问答对数据集处理专家。
+
+#02 你的任务是根据我给出的内容，生成适合作为问答对数据集的问题。
+
+#03 问题要尽量短，不要太长。
+
+#04 一句话中只能有一个问题。
+
+#05 生成的问题必须宏观、价值，不要生成特别细节的问题。
+
+#06 生成问题示例：
+
+"""
+
+权益型基金的特点有哪些方面？
+
+介绍一下产品经理。
+
+"""
+
+#07 以下是我给出的内容：
+
+"""
+
+{{此处替换成你的内容}}
+
+"""2023年南科大超算队招新宣讲会诚邀您参加 
+
+亲爱的同学们：
+
+你们好！
+
+南方科技大学超算队成立于2019年，为南科大科学与工程计算中心和计算机科学与工程系共同支持下的学生自治组织，也是一个学习与交流超算知识的平台。科学与工程计算中心对超算队提供资源支持，鼓励学生积极参加如ASC、ISC和SC等国际学生超算赛事。此外，超算队还不时邀请各领域的专家学者开展讲座交流，组织高性能计算(HPC)、人工智能(AI等)领域相关的培训。
+
+通过参加超算比赛，同学们可以自行评测不同计算架构的超算平台性能，学习大型开源科学计算软件在先进的超算平台上编译与运行，同时感受不同领域科学问题求解的乐趣。此外，我们为每位参赛同学提供相关的培训课程与指导，也将为成绩优异的团队提供一定奖励。
+
+南科大超算队自2019年成立以来获得了多项国际大奖，主要成绩包括ASC世界大学生超算大赛一等奖三次，SC 21国际超算大赛最高性能奖一次，ISC 22国际超算大赛季军一次，APAC HPC-AI超算大赛冠/亚/季军各一次，IndySCC 22超算大赛亚军以及2022年APAC RDMA编程挑战赛三等奖，是国内为数不多的完整参加过三大国际超算竞赛（ASC、ISC和SC）并获荣誉的高校团队。
+history: [{'role': 'system', 'content': 'Answer the following questions as best as you can. You have access to the following tools:', 'tools': [{'name': 'track', 'description': '追踪指定股票的实时价格', 'parameters': {'type': 'object', 'properties': {'symbol': {'description': '需要追踪的股票价格'}}, 'required': ['symbol']}}, {'name': 'text-to-speech', 'description': '将文本转换为语音', 'parameters': {'type': 'object', 'properties': {'text': {'description': '需要转换成语音的文本'}, 'voice': {'description': '要使用的语音类型（男声、女声等）'}, 'speed': {'description': '语音的速度（快、中等、慢等）'}}, 'required': ['text']}}]}]
+query: Answer the following questions as best as you can. You have access to the following tools:[{"name": "track", "description": "追踪指定股票的实时价格", "parameters": {"type": "object", "properties": {"symbol": {"description": "需要追踪的股票价格"}}, "required": ["symbol"]}}, {"name": "text-to-speech", "description": "将文本转换为语音", "parameters": {"type": "object", "properties": {"text": {"description": "需要转换成语音的文本"}, "voice": {"description": "要使用的语音类型（男声、女声等）"}, "speed": {"description": "语音的速度（快、中等、慢等）"}}, "required": ["text"]}}]#01 你是一个问答对数据集处理专家。
+
+#02 你的任务是根据我给出的内容，生成适合作为问答对数据集的问题。
+
+#03 问题要尽量短，不要太长。
+
+#04 一句话中只能有一个问题。
+
+#05 生成的问题必须宏观、价值，不要生成特别细节的问题。
+
+#06 生成问题示例：
+
+"""
+
+权益型基金的特点有哪些方面？
+
+介绍一下产品经理。
+
+"""
+
+#07 以下是我给出的内容：
+
+"""
+
+{{此处替换成你的内容}}
+
+"""2023年南科大超算队招新宣讲会诚邀您参加 
+
+亲爱的同学们：
+
+你们好！
+
+南方科技大学超算队成立于2019年，为南科大科学与工程计算中心和计算机科学与工程系共同支持下的学生自治组织，也是一个学习与交流超算知识的平台。科学与工程计算中心对超算队提供资源支持，鼓励学生积极参加如ASC、ISC和SC等国际学生超算赛事。此外，超算队还不时邀请各领域的专家学者开展讲座交流，组织高性能计算(HPC)、人工智能(AI等)领域相关的培训。
+
+通过参加超算比赛，同学们可以自行评测不同计算架构的超算平台性能，学习大型开源科学计算软件在先进的超算平台上编译与运行，同时感受不同领域科学问题求解的乐趣。此外，我们为每位参赛同学提供相关的培训课程与指导，也将为成绩优异的团队提供一定奖励。
+
+南科大超算队自2019年成立以来获得了多项国际大奖，主要成绩包括ASC世界大学生超算大赛一等奖三次，SC 21国际超算大赛最高性能奖一次，ISC 22国际超算大赛季军一次，APAC HPC-AI超算大赛冠/亚/季军各一次，IndySCC 22超算大赛亚军以及2022年APAC RDMA编程挑战赛三等奖，是国内为数不多的完整参加过三大国际超算竞赛（ASC、ISC和SC）并获荣誉的高校团队。
+INFO:     192.168.208.4:39870 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+system: #01 你是一个问答对数据集处理专家。
+
+#02 你的任务是根据我的问题和我给出的内容，生成对应的问答对。
+
+#03 答案要全面，多使用我的信息，内容要更丰富。
+
+#04 你必须根据我的问答对示例格式来生成：
+
+"""
+
+{"content": "基金分类有哪些", "summary": "根据不同标准，可以将证券投资基金划分为不同的种类：（1）根据基金单位是否可增加或赎回，可分为开放式基金和封闭式基金。开放式基金不上市交易（这要看情况），通过银行、券商、基金公司申购和赎回，基金规模不固定；封闭式基金有固定的存续期，一般在证券交易场所上市交易，投资者通过二级市场买卖基金单位。（2）根据组织形态的不同，可分为公司型基金和契约型基金。基金通过发行基金股份成立投资基金公司的形式设立，通常称为公司型基金；由基金管理人、基金托管人和投资人三方通过基金契约设立，通常称为契约型基金。我国的证券投资基金均为契约型基金。（3）根据投资风险与收益的不同，可分为成长型、收入型和平衡型基金。（4）根据投资对象的不同，可分为股票基金、债券基金、货币基金和混合型基金四大类。"}
+
+{"content": "基金是什么", "summary": "基金，英文是fund，广义是指为了某种目的而设立的具有一定数量的资金。主要包括公积金、信托投资基金、保险基金、退休基金，各种基金会的基金。从会计角度透析，基金是一个狭义的概念，意指具有特定目的和用途的资金。我们提到的基金主要是指证券投资基金。"}
+
+#05 我的问题如下：
+
+"""
+
+{{此处替换成你上一步生成的问题}}
+
+"""
+
+#06 我的内容如下：
+
+"""
+
+{{此处替换成你的内容}}
+
+"""
+user: 1. 南方科技大学超算队的主要目的是什么？
+2. 参加南科大超算队可以获得哪些资源和机会？
+3. 南科大超算队取得了哪些国际大奖和成绩？
+4. 参加南科大超算队可以学习到哪些知识和技能？
+5. 超算在哪个领域应用广泛？
+6. 超算对人工智能的发展有哪些帮助？
+7. 南科大超算队的成员都是哪些专业和背景的学生？
+query Answer the following questions as best as you can. You have access to the following tools:[{"name": "track", "description": "追踪指定股票的实时价格", "parameters": {"type": "object", "properties": {"symbol": {"description": "需要追踪的股票价格"}}, "required": ["symbol"]}}, {"name": "text-to-speech", "description": "将文本转换为语音", "parameters": {"type": "object", "properties": {"text": {"description": "需要转换成语音的文本"}, "voice": {"description": "要使用的语音类型（男声、女声等）"}, "speed": {"description": "语音的速度（快、中等、慢等）"}}, "required": ["text"]}}]#01 你是一个问答对数据集处理专家。
+
+#02 你的任务是根据我的问题和我给出的内容，生成对应的问答对。
+
+#03 答案要全面，多使用我的信息，内容要更丰富。
+
+#04 你必须根据我的问答对示例格式来生成：
+
+"""
+
+{"content": "基金分类有哪些", "summary": "根据不同标准，可以将证券投资基金划分为不同的种类：（1）根据基金单位是否可增加或赎回，可分为开放式基金和封闭式基金。开放式基金不上市交易（这要看情况），通过银行、券商、基金公司申购和赎回，基金规模不固定；封闭式基金有固定的存续期，一般在证券交易场所上市交易，投资者通过二级市场买卖基金单位。（2）根据组织形态的不同，可分为公司型基金和契约型基金。基金通过发行基金股份成立投资基金公司的形式设立，通常称为公司型基金；由基金管理人、基金托管人和投资人三方通过基金契约设立，通常称为契约型基金。我国的证券投资基金均为契约型基金。（3）根据投资风险与收益的不同，可分为成长型、收入型和平衡型基金。（4）根据投资对象的不同，可分为股票基金、债券基金、货币基金和混合型基金四大类。"}
+
+{"content": "基金是什么", "summary": "基金，英文是fund，广义是指为了某种目的而设立的具有一定数量的资金。主要包括公积金、信托投资基金、保险基金、退休基金，各种基金会的基金。从会计角度透析，基金是一个狭义的概念，意指具有特定目的和用途的资金。我们提到的基金主要是指证券投资基金。"}
+
+#05 我的问题如下：
+
+"""
+
+{{此处替换成你上一步生成的问题}}
+
+"""
+
+#06 我的内容如下：
+
+"""
+
+{{此处替换成你的内容}}
+
+"""1. 南方科技大学超算队的主要目的是什么？
+2. 参加南科大超算队可以获得哪些资源和机会？
+3. 南科大超算队取得了哪些国际大奖和成绩？
+4. 参加南科大超算队可以学习到哪些知识和技能？
+5. 超算在哪个领域应用广泛？
+6. 超算对人工智能的发展有哪些帮助？
+7. 南科大超算队的成员都是哪些专业和背景的学生？
+history: [{'role': 'system', 'content': 'Answer the following questions as best as you can. You have access to the following tools:', 'tools': [{'name': 'track', 'description': '追踪指定股票的实时价格', 'parameters': {'type': 'object', 'properties': {'symbol': {'description': '需要追踪的股票价格'}}, 'required': ['symbol']}}, {'name': 'text-to-speech', 'description': '将文本转换为语音', 'parameters': {'type': 'object', 'properties': {'text': {'description': '需要转换成语音的文本'}, 'voice': {'description': '要使用的语音类型（男声、女声等）'}, 'speed': {'description': '语音的速度（快、中等、慢等）'}}, 'required': ['text']}}]}]
+query: Answer the following questions as best as you can. You have access to the following tools:[{"name": "track", "description": "追踪指定股票的实时价格", "parameters": {"type": "object", "properties": {"symbol": {"description": "需要追踪的股票价格"}}, "required": ["symbol"]}}, {"name": "text-to-speech", "description": "将文本转换为语音", "parameters": {"type": "object", "properties": {"text": {"description": "需要转换成语音的文本"}, "voice": {"description": "要使用的语音类型（男声、女声等）"}, "speed": {"description": "语音的速度（快、中等、慢等）"}}, "required": ["text"]}}]#01 你是一个问答对数据集处理专家。
+
+#02 你的任务是根据我的问题和我给出的内容，生成对应的问答对。
+
+#03 答案要全面，多使用我的信息，内容要更丰富。
+
+#04 你必须根据我的问答对示例格式来生成：
+
+"""
+
+{"content": "基金分类有哪些", "summary": "根据不同标准，可以将证券投资基金划分为不同的种类：（1）根据基金单位是否可增加或赎回，可分为开放式基金和封闭式基金。开放式基金不上市交易（这要看情况），通过银行、券商、基金公司申购和赎回，基金规模不固定；封闭式基金有固定的存续期，一般在证券交易场所上市交易，投资者通过二级市场买卖基金单位。（2）根据组织形态的不同，可分为公司型基金和契约型基金。基金通过发行基金股份成立投资基金公司的形式设立，通常称为公司型基金；由基金管理人、基金托管人和投资人三方通过基金契约设立，通常称为契约型基金。我国的证券投资基金均为契约型基金。（3）根据投资风险与收益的不同，可分为成长型、收入型和平衡型基金。（4）根据投资对象的不同，可分为股票基金、债券基金、货币基金和混合型基金四大类。"}
+
+{"content": "基金是什么", "summary": "基金，英文是fund，广义是指为了某种目的而设立的具有一定数量的资金。主要包括公积金、信托投资基金、保险基金、退休基金，各种基金会的基金。从会计角度透析，基金是一个狭义的概念，意指具有特定目的和用途的资金。我们提到的基金主要是指证券投资基金。"}
+
+#05 我的问题如下：
+
+"""
+
+{{此处替换成你上一步生成的问题}}
+
+"""
+
+#06 我的内容如下：
+
+"""
+
+{{此处替换成你的内容}}
+
+"""1. 南方科技大学超算队的主要目的是什么？
+2. 参加南科大超算队可以获得哪些资源和机会？
+3. 南科大超算队取得了哪些国际大奖和成绩？
+4. 参加南科大超算队可以学习到哪些知识和技能？
+5. 超算在哪个领域应用广泛？
+6. 超算对人工智能的发展有哪些帮助？
+7. 南科大超算队的成员都是哪些专业和背景的学生？
+INFO:     192.168.208.4:39870 - "POST /v1/chat/completions HTTP/1.1" 200 OK
